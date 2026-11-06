@@ -6,7 +6,7 @@ public class Driver {
 		
 		Vectors vector = new Vectors();
 		
-		vector.drawGame();
+		vector.run();
 
 	}
 

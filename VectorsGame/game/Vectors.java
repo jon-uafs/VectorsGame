@@ -1,26 +1,101 @@
 package game;
 
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Vectors {
 	
+	Scoring scoring = new Scoring();
+	
 	public String[][] gameGrid = new String[8][8];
 	public Scanner console = new Scanner(System.in);
-	Player player1 = new Player();
+	Player player1;
 	Player player2 = new Player();
+	ComputerPlayer comp = new ComputerPlayer();
+	int currentTurn;
+	int maxTurns = 20;
 	
 	public void run() 
 	{
-		drawIntro();
-		System.out.println("Please enter Player 1's name: ");
-		playerInput();
+		String playerInput = "";
 		
+		try {
+			
+			drawIntro();
+			
+			while(playerInput.isBlank() || playerInput.isEmpty()) 
+			{
+				System.out.println("Please enter Player 1's name: ");
+				playerInput = playerInput();
+				
+				if (playerInput.isEmpty()) 
+				{
+					System.out.println("You gotta type something.");				
+				}
+				else 
+				{
+					player1 = new Player(playerInput);
+				}
+			}
+			
+			playerInput = "";
+			
+			popArray(gameGrid);
+			
+			player1.setIsTurn(true);
+			
+			while(currentTurn <= maxTurns) 
+			{
+				drawGame();
+				System.out.println("Please enter coordinates for where would like to place your marker: ");
+				player1Turn();
+				
+				player2Turn();
+				
+				currentTurn++;
+				
+			}
+			
+			System.out.println("Player Final Score: " + player1.getScore());
+			System.out.println("Computer Final Score: " + player2.getScore());
+			
+			
+			if(player1.getScore() > player2.getScore()) 
+			{
+				System.out.println("Congrats! You beat the AI! Thanks for scoring a point for humanity.");
+			}
+			else 
+			{
+				System.out.println("You lost to the computer. AI is going to take over. We're doomed. Thanks for that.");
+			}
+		
+		}
+		catch(NullPointerException e) 
+		{
+			System.out.println("Stop typing weird stuff");
+			System.out.println(e.getMessage());
+		}
+		 catch (InputMismatchException e) 
+		{
+        	e.toString();
+            System.out.println("Invalid input. Please enter numbers only.");
+        }
+		catch(ArrayIndexOutOfBoundsException e) 
+		{
+			System.out.println("You entered coordinates that are out of bounds. Try again.");
+			System.out.println(e.toString());
+		}
+		catch(Exception e) 
+        {
+        	System.out.println(e.toString());
+        	System.out.print("I'm not sure what you did, but it was wrong.");
+        }
 		
 	}
 	
 	public void popArray(String[][] gameGrid) 
 	{
-		String value = "x";
+		String value = "-";
 		
 		for (int i = 0; i < 8; i++)
 		{
@@ -33,9 +108,108 @@ public class Vectors {
 	
 	public String playerInput() 
 	{
-		String input = console.next();
+		String input = console.nextLine().trim();
 		
 		return input;
+	}
+	
+	public boolean validCheck(String input) 
+	{
+		boolean isValid = false;
+		boolean correctLength = false;
+		boolean correctType = false;
+		boolean inBounds = false;
+		char compare;
+		char[] inputArray = input.toCharArray();
+		
+		
+		if (input.length() == 2) 
+		{
+			correctLength = true;
+		}
+		
+		for(int i = 0; i < inputArray.length; i++) 
+		{
+			compare = inputArray[i];
+			if(!Character.isDigit(compare)) 
+			{
+				correctType = false;
+				break;
+			}else {
+				correctType = true;				
+			}
+		}
+		
+		if (inputArray[0] >= '0' && inputArray[0] <= '7' && inputArray[1] >= '0' && inputArray[1] <= '7') 
+			{
+			    inBounds = true;
+			}
+		
+		
+		if (correctLength && correctType && inBounds) 
+		{
+			isValid = true;
+		}		
+				
+		return isValid;
+	}
+	
+	public void player1Turn() 
+	{
+	    boolean validMove = false;
+
+	    while (!validMove) 
+	    {
+	        String playerInput = playerInput();
+
+	        if (playerInput.isEmpty()) 
+	        {
+	            System.out.println("You gotta type something.");
+	            continue;
+	        }
+
+	        if (!validCheck(playerInput)) 
+	        {
+	            System.out.println("Invalid format. Please enter two digits between 0 and 7 (e.g., '02').");
+	            continue;
+	        }
+
+	        int coordRow = playerInput.charAt(0) - '0';
+	        int coordCol = playerInput.charAt(1) - '0';
+
+	        if (!gameGrid[coordRow][coordCol].equals("-")) 
+	        {
+	            System.out.println("That spot is already occupied! Pick another.");
+	            continue;
+	        }
+
+	        gameGrid[coordRow][coordCol] = player1.getSymbol();
+	        validMove = true;
+	    }
+
+	    player1.setScore(scoring.calculateTotalScore(gameGrid, player1.getSymbol()));
+	    player1.setIsTurn(false);
+	    player2.setIsTurn(true);
+	}
+	
+	public void player2Turn() 
+	{
+		int[] moveCoords = new int[2];
+		moveCoords = comp.findBlockingMove(gameGrid);
+		
+		int coordRow = moveCoords[0];
+		int coordCol = moveCoords[1];
+		
+		if(!(moveCoords[0] == -1)) 
+		{
+			gameGrid[coordRow][coordCol] = player2.getSymbol();
+		}
+		
+		player2.setScore(scoring.calculateTotalScore(gameGrid, player2.getSymbol()));
+		
+		player2.setIsTurn(false);
+		player1.setIsTurn(true);
+		
 	}
 	
 	public void drawIntro() 
@@ -43,20 +217,19 @@ public class Vectors {
 		System.out.println("*************************");
 		System.out.println("- V E C T O R S         *");
 		System.out.println("*************************");
-		System.out.println("High Score: Jon - 150"); //Update with actual info
+		System.out.print("High Score: ");
+		scoring.readHighScores();
+		System.out.println();
 	}
 	
 	
 	public void drawGame() 
-	{
-		popArray(gameGrid);
-		
-		drawIntro();
+	{	
 		System.out.println("*************************");
-		System.out.printf("-Player Score: %d  Last Round:  10\n",player1.getScore()); // Update with actual info
-		System.out.printf("-Computer Score: %d  Last Round: 3\n",player2.getScore()); // Update with actual info
+		System.out.printf("-%s's Score: %d  Last Round:  10\n",player1.getName(),player1.getScore());
+		System.out.printf("-Computer Score: %d  Last Round: 3\n",player2.getScore()); 
 		System.out.println("*************************");
-		System.out.println("-Turn 7 of 20");				// Update with actual info
+		System.out.printf("-Turn %d of %d\n",currentTurn,maxTurns);
 		System.out.println("*************************");
 		System.out.println("  0   1   2   3   4   5   6   7");
 		System.out.println("---------------------------------");
@@ -79,5 +252,5 @@ public class Vectors {
 		
 		
 	}
-
+	
 }
