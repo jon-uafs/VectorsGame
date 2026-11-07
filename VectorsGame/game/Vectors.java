@@ -6,6 +6,7 @@ import java.util.Scanner;
 public class Vectors {
 	
 	Scoring scoring = new Scoring();
+	Highscores hs = new Highscores();
 	
 	public String[][] gameGrid = new String[8][8];
 	public Scanner console = new Scanner(System.in);
@@ -218,7 +219,7 @@ public class Vectors {
 		System.out.println("- V E C T O R S         *");
 		System.out.println("*************************");
 		System.out.print("High Score: ");
-		scoring.readHighScores();
+		hs.readHighScores();
 		System.out.println();
 	}
 	
