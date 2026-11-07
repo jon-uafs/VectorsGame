@@ -43,8 +43,6 @@ public class Vectors {
 			
 			popArray(gameGrid);
 			
-			player1.setIsTurn(true);
-			
 			while(currentTurn <= maxTurns) 
 			{
 				drawGame();
@@ -189,8 +187,6 @@ public class Vectors {
 	    }
 
 	    player1.setScore(scoring.calculateTotalScore(gameGrid, player1.getSymbol()));
-	    player1.setIsTurn(false);
-	    player2.setIsTurn(true);
 	}
 	
 	public void player2Turn() 
@@ -208,8 +204,6 @@ public class Vectors {
 		
 		player2.setScore(scoring.calculateTotalScore(gameGrid, player2.getSymbol()));
 		
-		player2.setIsTurn(false);
-		player1.setIsTurn(true);
 		
 	}
 	

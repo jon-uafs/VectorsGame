@@ -5,20 +5,17 @@ public class Player {
 	private int score_;
 	private String name_;
 	private String playerSymbol_;
-	private boolean isTurn_;
 	
 	public Player() 
 	{
 		this.score_ = 0;
 		this.name_ = "Computer";
-		this.isTurn_ = false;
 		this.playerSymbol_ = "c";
 	}
 	
 	public Player(String name) 
 	{
 		this.score_ = 0;
-		this.isTurn_ = false;
 		this.name_ = name;
 		this.playerSymbol_ = "x";
 	}
@@ -43,16 +40,6 @@ public class Player {
 		return this.name_;
 	}
 	
-	
-	public void setIsTurn(boolean isTurn) 
-	{
-		this.isTurn_ = isTurn;
-	}
-	
-	public boolean getIsTurn() 
-	{
-		return this.isTurn_;
-	}
 	
 	public String getSymbol() 
 	{
